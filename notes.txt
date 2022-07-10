@@ -1,3 +1,13 @@
 I learned about the benefits of creating a compiler. We will use a syntax analyzer for our first part, comparing with XML files (and probably TextComparer.bat). Generating a compiler will help you understand what you need to do to create one. Also in this way you can extend your code to handle things like decimals.
 I learned about lexical analysis. When we tokenize, we mean turning each group of characters into a stream of meaningful XML lines. This XML file is something like the thing to the (log stopped)
 Our brains follow the same grammar rules that we learned throughout our life, that are sort of 'wired' to our brain. Our brain still tries to match a bit of the sentence they are given if it doesn't follow the grammar completely, while if that was given to a compiler, it would immediately raise their hands and say that you have to fix the sentence.
+English is an ambiguous language and has many parse trees for a certain sentence, while programming languages are much less ambiguous. Our output XML file is going to be styled like an HTML file. For example, count + 1:
+<expression>
+    <term>
+        <identifier> count </identifier>
+    </term>
+    <symbol> + </symbol>
+    <term>
+        <integerConstant> 1 </integerConstant>
+    </term>
+</expression
