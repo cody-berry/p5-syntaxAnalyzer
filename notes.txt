@@ -11,3 +11,8 @@ English is an ambiguous language and has many parse trees for a certain sentence
         <integerConstant> 1 </integerConstant>
     </term>
 </expression
+I learned about how we're going to structure our Parser. It's going to have functions that all begin with 'compile'. There's also going to be an 'eat' function which checks the current token, writes it down in the XML file, and then advances to the next token. For compileWhileStatement(), we will have 'eat('while') eat('(') compileExpression() eat(')')  eat('{') compileStatements() eat('}')'.
+LL parsing is where we don't have to backtrack and reconsider one of the methods we wanted to invoke to compile. LL(k) parsing is LL parsing where you have to look k tokens ahead to determine what method you have to invoke. LL(1) is the simplest and luckily our Jack language uses that except for array indexing and methods.
+I learned about the jack grammar. This tme I took pictures and I can't really tell you. But if you see a 'variable name', you need to look ahead and see if it's a plain function call, a variable name that needs to call a function, an array access, or just that variable.
+When you encounter a terminal or non-trivial non-terminal Jack gammar subset, you should write <{name of the
+rule}>{conten ts}</{name of the rule}>, just like HTML tags.
