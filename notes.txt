@@ -13,6 +13,23 @@ English is an ambiguous language and has many parse trees for a certain sentence
 </expression
 I learned about how we're going to structure our Parser. It's going to have functions that all begin with 'compile'. There's also going to be an 'eat' function which checks the current token, writes it down in the XML file, and then advances to the next token. For compileWhileStatement(), we will have 'eat('while') eat('(') compileExpression() eat(')')  eat('{') compileStatements() eat('}')'.
 LL parsing is where we don't have to backtrack and reconsider one of the methods we wanted to invoke to compile. LL(k) parsing is LL parsing where you have to look k tokens ahead to determine what method you have to invoke. LL(1) is the simplest and luckily our Jack language uses that except for array indexing and methods.
-I learned about the jack grammar. This tme I took pictures and I can't really tell you. But if you see a 'variable name', you need to look ahead and see if it's a plain function call, a variable name that needs to call a function, an array access, or just that variable.
-When you encounter a terminal or non-trivial non-terminal Jack gammar subset, you should write <{name of the
-rule}>{conten ts}</{name of the rule}>, just like HTML tags.
+I learned about the jack grammar. This time I took pictures and I can't really tell you. But if you see a 'variable
+name', you need to look ahead and see if it's a plain function call, a variable name that needs to call a function, an array access, or just that variable.
+When you encounter a terminal or non-trivial non-terminal Jack grammar subset, you should write <{name of the
+rule}>{contents}</{name of the rule}>, just like HTML tags.
+
+
+Bites:
+
+Open a jack file and print it out
+Implement all the skeletons of each class
+Implement JackTokenizer:
+    Start with the constructor.
+    Add hasMoreTokens.
+    Add advance. This should be very complex. You will have to split the tokens and I won't have an implementation until I get here.
+    Add tokenType. It returns the type of the current token.
+    Add intVal, stringVal, identifier, and symbol BEFORE keyword.
+Implement JackAnalyzer:
+    Follow the grammar rules. First write an expressionless analyzer and then a with-expression analyzer.
+Implement CompilationEngine:
+    Follow the API. Make sure to create a function to write the XML so that you don't have repeated code!
