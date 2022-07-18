@@ -5,7 +5,7 @@ tokenizer = JackTokenizer('ExpressionLessSquare/Main.jack')
 for line in tokenizer.file:
     print(line)
 
-print(tokenizer.hasMoreTokens())
+print(tokenizer.file)
 
 
 # file = open('ArrayTest/Main.jack', 'r')
@@ -17,6 +17,5 @@ print(tokenizer.hasMoreTokens())
 #
 #     print(line)
 
-tokenizer.advance()
-tokenizer.advance()
-tokenizer.advance()
+while tokenizer.hasMoreTokens():
+    tokenizer.advance()
