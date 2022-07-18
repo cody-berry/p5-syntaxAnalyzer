@@ -16,3 +16,7 @@ print(tokenizer.hasMoreTokens())
 #     line = line[:-1]
 #
 #     print(line)
+
+tokenizer.advance()
+tokenizer.advance()
+tokenizer.advance()
