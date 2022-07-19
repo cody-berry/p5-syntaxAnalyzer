@@ -12,13 +12,13 @@ class JackTokenizer:
             except:
                 pass
             line = line.strip(' ')
-            if len(line) > 0 and line[0] != '/':
+            if (len(line) > 0) and (line[0] != '/'):
                 self.file.append(line[:-1])
 
     def hasMoreTokens(self):
         return not ((self.line_number >= len(self.file) - 1) and (
                 self.current_index + len(self.current_token) >= (
-                len(self.file[self.line_number]))))
+            len(self.file[self.line_number]))))
 
     def advance(self):
 
@@ -31,7 +31,6 @@ class JackTokenizer:
             self.current_token = rest_of_line[:(rest_of_line.index(' ') + 1)]
         except:
             self.current_token = rest_of_line
-        print(f'Current token: |{self.current_token}|')
 
         # for now, just advance for every word
         # but first, we have to find the starting line index of our token which will be our self.currentIndex.
@@ -41,3 +40,6 @@ class JackTokenizer:
             self.current_index = 0
         else:
             self.current_index = token_start
+
+
+        print(f'Current token: |{self.current_token}|')
