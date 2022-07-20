@@ -22,15 +22,35 @@ class JackTokenizer:
 
     def advance(self):
 
-        print(f'Token starting index: |{self.current_index}|')
+        # print(f'Token starting index: |{self.current_index}|')
 
         rest_of_line = self.file[self.line_number][self.current_index:]
-        print(f'Rest of line: |{rest_of_line}|')
+        # print(f'Rest of line: |{rest_of_line}|')
+
+        possible_token_ending_indices = [len(rest_of_line)]
 
         try:
-            self.current_token = rest_of_line[:(rest_of_line.index(' ') + 1)]
+            possible_token_ending_indices.append(rest_of_line.index(' ') + 1)
         except:
-            self.current_token = rest_of_line
+            pass
+
+        for token_breaker in ['+', '-', '~', '*', '/', '&', '|', '<', '>', '=', '}', '{', ')', '(', '[', ']', '.', ',', ';']:
+            try:
+                index = rest_of_line.index(token_breaker)
+                if index > 0:
+                    possible_token_ending_indices.append(index)
+                else:
+                    possible_token_ending_indices.append(1)
+            except:
+                pass
+
+        if len(possible_token_ending_indices) > 1:
+            for i in range(0, len(possible_token_ending_indices)-1):
+                possible_token_ending_indices[0] = min(possible_token_ending_indices[0], possible_token_ending_indices[i+1])
+
+        token_end = possible_token_ending_indices[0]
+
+        self.current_token = rest_of_line[:token_end]
 
         # for now, just advance for every word
         # but first, we have to find the starting line index of our token which will be our self.currentIndex.
@@ -41,5 +61,8 @@ class JackTokenizer:
         else:
             self.current_index = token_start
 
+        if self.current_token:
+            if self.current_token[-1] == ' ':
+                self.current_token = self.current_token[:-1]
 
         print(f'Current token: |{self.current_token}|')
