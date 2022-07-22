@@ -79,7 +79,10 @@ class JackTokenizer:
                 if index > 0:
                     possible_token_ending_indices.append(index)
                 else:
-                    possible_token_ending_indices.append(1)
+                    try:
+                        possible_token_ending_indices.append(rest_of_line.index(' ') + 1)
+                    except:
+                        possible_token_ending_indices.append(1)
             except:
                 pass
 

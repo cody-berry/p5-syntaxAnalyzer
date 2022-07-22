@@ -20,13 +20,13 @@ while tokenizer.hasMoreTokens():
             print(f'|{tokenizer.int_val()}|')
         case TokenType.IDENTIFIER:
             print(f'|{tokenizer.identifier()}|')
-            tokens.write(f'\t<identifier>{tokenizer.identifier()}</identifier>\n')
+            tokens.write(f'<identifier> {tokenizer.identifier()} </identifier>\n')
         case TokenType.SYMBOL:
             print(f'|{tokenizer.symbol()}|')
-            tokens.write(f'\t<symbol>{tokenizer.symbol()}</symbol>\n')
+            tokens.write(f'<symbol> {tokenizer.symbol()} </symbol>\n')
         case TokenType.KEYWORD:
             print(f'|{tokenizer.keyWord().name.lower()}|')
-            tokens.write(f'\t<keyword>{tokenizer.keyWord().name.lower()}</keyword>\n')
+            tokens.write(f'<keyword> {tokenizer.keyWord().name.lower()} </keyword>\n')
 
 tokens.write('</tokens>')
 
