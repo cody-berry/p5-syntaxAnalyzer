@@ -105,11 +105,11 @@ class JackTokenizer:
         else:
             self.current_index = token_start
 
+        print(f'Current token: |{self.current_token}|')
+
         if self.current_token:
             if self.current_token[-1] == ' ':
                 self.current_token = self.current_token[:-1]
-
-        # print(f'Current token: |{self.current_token}|')
 
     def token_type(self):
         if self.current_token in ['class', 'constructor', 'function', 'method',
