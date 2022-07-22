@@ -9,6 +9,30 @@ class TokenType(Enum):
     STRING_CONST = 4
 
 
+class KeywordType(Enum):
+    CLASS = 0
+    METHOD = 1
+    FUNCTION = 2
+    CONSTRUCTOR = 3
+    INT = 4
+    BOOLEAN = 5
+    CHAR = 6
+    VOID = 7
+    VAR = 8
+    STATIC = 9
+    FIELD = 10
+    LET = 11
+    DO = 12
+    IF = 13
+    ELSE = 14
+    WHILE = 15
+    RETURN = 16
+    TRUE = 17
+    FALSE = 18
+    NULL = 19
+    THIS = 20
+
+
 class JackTokenizer:
     def __init__(self, filename):
         self.file = []
@@ -25,7 +49,7 @@ class JackTokenizer:
 
             line = line[:-1].strip(' ')
 
-            if (len(line) > 0) and (line[0] != '/'):
+            if (len(line) > 0) and (line[0] != '/') and (line[0] != "*"):
                 self.file.append(line)
 
     def hasMoreTokens(self):
@@ -37,8 +61,9 @@ class JackTokenizer:
 
         # print(f'Token starting index: |{self.current_index}|')
 
-        rest_of_line = self.file[self.line_number][self.current_index:].strip(' ')
-        print(f'Rest of line: |{rest_of_line}|')
+        rest_of_line = self.file[self.line_number][self.current_index:].strip(
+            ' ')
+        # print(f'Rest of line: |{rest_of_line}|')
 
         possible_token_ending_indices = [len(rest_of_line)]
 
@@ -84,7 +109,7 @@ class JackTokenizer:
             if self.current_token[-1] == ' ':
                 self.current_token = self.current_token[:-1]
 
-        print(f'Current token: |{self.current_token}|')
+        # print(f'Current token: |{self.current_token}|')
 
     def token_type(self):
         if self.current_token in ['class', 'constructor', 'function', 'method',
@@ -101,7 +126,66 @@ class JackTokenizer:
                                      '8', '9']:
             return TokenType.INT_CONST
         if self.current_token[0] == ["\""]:
-            self.advance()  # like this we're skipping the first token (") so that the next token i our actual string constant
             return TokenType.STRING_CONST
         else:
             return TokenType.IDENTIFIER
+
+    def string_val(self):
+        self.advance()  # like this we're skipping the first token (") so that the next token is our actual string constant
+        return_val = self.current_token
+        self.advance()  # like this we're skipping the last token (") so that the next token is the token right after the string
+        return return_val
+
+    def int_val(self):
+        return int(self.current_token)
+
+    def identifier(self):
+        return str(self.current_token)
+
+    def symbol(self):
+        return str(self.current_token)
+
+    def keyWord(self):
+        match self.current_token:
+            case 'class':
+                return KeywordType.CLASS
+            case 'method':
+                return KeywordType.METHOD
+            case 'function':
+                return KeywordType.FUNCTION
+            case 'constructor':
+                return KeywordType.CONSTRUCTOR
+            case 'int':
+                return KeywordType.INT
+            case 'boolean':
+                return KeywordType.BOOLEAN
+            case 'char':
+                return KeywordType.CHAR
+            case 'void':
+                return KeywordType.VOID
+            case 'var':
+                return KeywordType.VAR
+            case 'static':
+                return KeywordType.STATIC
+            case 'field':
+                return KeywordType.FIELD
+            case 'let':
+                return KeywordType.LET
+            case 'do':
+                return KeywordType.DO
+            case 'if':
+                return KeywordType.IF
+            case 'else':
+                return KeywordType.ELSE
+            case 'while':
+                return KeywordType.WHILE
+            case 'return':
+                return KeywordType.RETURN
+            case 'true':
+                return KeywordType.TRUE
+            case 'false':
+                return KeywordType.FALSE
+            case 'null':
+                return KeywordType.NULL
+            case 'this':
+                return KeywordType.THIS
