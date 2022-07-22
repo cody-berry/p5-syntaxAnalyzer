@@ -23,8 +23,9 @@ class JackTokenizer:
             except:
                 pass
 
-            if (len(line) > 1) and (line[0] != '/'):
-                line = line[:-1].strip(' ')
+            line = line[:-1].strip(' ')
+
+            if (len(line) > 0) and (line[0] != '/'):
                 self.file.append(line)
 
     def hasMoreTokens(self):
@@ -36,8 +37,8 @@ class JackTokenizer:
 
         # print(f'Token starting index: |{self.current_index}|')
 
-        rest_of_line = self.file[self.line_number][self.current_index:]
-        # print(f'Rest of line: |{rest_of_line}|')
+        rest_of_line = self.file[self.line_number][self.current_index:].strip(' ')
+        print(f'Rest of line: |{rest_of_line}|')
 
         possible_token_ending_indices = [len(rest_of_line)]
 
