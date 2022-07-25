@@ -52,6 +52,8 @@ class JackTokenizer:
             if (len(line) > 0) and (line[0] != '/') and (line[0] != "*"):
                 self.file.append(line)
 
+        self.file.append("\n")
+
     def hasMoreTokens(self):
         return not ((self.line_number >= len(self.file) - 1) and (
                 self.current_index + len(self.current_token) >= (
@@ -110,11 +112,14 @@ class JackTokenizer:
         else:
             self.current_index = token_start
 
+        if self.current_token[0] == ' ':
+            self.advance()
+
         print(f'|{self.current_token}|')
         print('🆚')
 
         if self.current_token:
-            if self.current_token[-1] == ' ':
+            while self.current_token[-1] == ' ':
                 self.current_token = self.current_token[:-1]
 
     def token_type(self):
