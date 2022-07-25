@@ -2,7 +2,7 @@ from jackTokenizer import *
 # from compilationEngine import *
 
 tokenizer = JackTokenizer('Square/SquareGame.jack')
-tokens = open('ExpressionLessSquare/SquareGameT2.xml', 'w')
+tokens = open('Square/SquareGameT2.xml', 'w')
 tokens.write('<tokens>\n')
 
 
@@ -18,6 +18,7 @@ while tokenizer.hasMoreTokens():
             print(f'|{tokenizer.string_val()}|')
         case TokenType.INT_CONST:
             print(f'|{tokenizer.int_val()}|')
+            tokens.write(f'<integerConstant> {tokenizer.int_val()} </integerConstant>\n')
         case TokenType.IDENTIFIER:
             print(f'|{tokenizer.identifier()}|')
             tokens.write(f'<identifier> {tokenizer.identifier()} </identifier>\n')
@@ -27,6 +28,7 @@ while tokenizer.hasMoreTokens():
         case TokenType.KEYWORD:
             print(f'|{tokenizer.keyWord().name.lower()}|')
             tokens.write(f'<keyword> {tokenizer.keyWord().name.lower()} </keyword>\n')
+    print("---")
 
 tokens.write('</tokens>')
 

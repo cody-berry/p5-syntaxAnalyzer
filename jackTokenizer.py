@@ -61,8 +61,7 @@ class JackTokenizer:
 
         # print(f'Token starting index: |{self.current_index}|')
 
-        rest_of_line = self.file[self.line_number][self.current_index:].strip(
-            ' ')
+        rest_of_line = self.file[self.line_number][self.current_index:]
         # print(f'Rest of line: |{rest_of_line}|')
 
         possible_token_ending_indices = [len(rest_of_line)]
@@ -80,7 +79,10 @@ class JackTokenizer:
                     possible_token_ending_indices.append(index)
                 else:
                     try:
-                        possible_token_ending_indices.append(rest_of_line.index(' ') + 1)
+                        if rest_of_line[1] == ' ':
+                            possible_token_ending_indices.append(2)
+                        else:
+                            possible_token_ending_indices.append(1)
                     except:
                         possible_token_ending_indices.append(1)
             except:
@@ -108,7 +110,8 @@ class JackTokenizer:
         else:
             self.current_index = token_start
 
-        print(f'Current token: |{self.current_token}|')
+        print(f'|{self.current_token}|')
+        print('🆚')
 
         if self.current_token:
             if self.current_token[-1] == ' ':
