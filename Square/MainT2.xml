@@ -106,6 +106,12 @@
 <identifier> j </identifier>
 <symbol> = </symbol>
 <identifier> j </identifier>
+<symbol> / </symbol>
+<symbol> ( </symbol>
+<symbol> - </symbol>
+<integerConstant> 2 </integerConstant>
+<symbol> ) </symbol>
+<symbol> ; </symbol>
 <keyword> let </keyword>
 <identifier> i </identifier>
 <symbol> = </symbol>

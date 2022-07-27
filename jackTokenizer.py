@@ -43,7 +43,7 @@ class JackTokenizer:
 
         for line in file:
             try:
-                line = line[:(line.index('/'))]
+                line = line[:(line.index('//'))]
             except:
                 pass
 
@@ -115,14 +115,23 @@ class JackTokenizer:
         if self.current_token[0] == ' ':
             self.advance()
 
-        print(f'|{self.current_token}|')
+        print(f'|{self.current_token}| {rest_of_line}')
         print('🆚')
 
         if self.current_token:
             while self.current_token[-1] == ' ':
                 self.current_token = self.current_token[:-1]
 
+        match self.current_token:
+            case '<':
+                self.current_token = '&lt;'
+            case '>':
+                self.current_token = '&gt;'
+            case '&':
+                self.current_token = '&amp;'
+
     def token_type(self):
+        print(self.current_token[0])
         if self.current_token in ['class', 'constructor', 'function', 'method',
                                   'field', 'static', 'var', 'int', 'char',
                                   'boolean', 'void', 'true', 'false', 'null',
@@ -130,22 +139,30 @@ class JackTokenizer:
                                   'return']:
             return TokenType.KEYWORD
         if self.current_token in ['{', '}', '(', ')', '[', ']', '.', ',', ';',
-                                  '+', '-', '*', '/', '&', '|', '<', '>', '=',
+                                  '+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '=',
                                   '~']:
             return TokenType.SYMBOL
         if self.current_token[0] in ['0', '1', '2', '3', '4', '5', '6', '7',
                                      '8', '9']:
             return TokenType.INT_CONST
-        if self.current_token[0] == ["\""]:
+        if self.current_token[0] == ['"']:
             return TokenType.STRING_CONST
         else:
             return TokenType.IDENTIFIER
 
     def string_val(self):
-        self.advance()  # like this we're skipping the first token (") so that the next token is our actual string constant
-        return_val = self.current_token
-        self.advance()  # like this we're skipping the last token (") so that the next token is the token right after the string
-        return return_val
+        # self.advance()  # like this we're skipping the first token (") so that the next token is our actual string constant
+        # return_val = self.current_token
+        # self.advance()  # like this we're skipping the last token (") so that the next token is the token right after the string
+        if self.current_token[-1] == '"':
+            return_val = self.current_token[2:]
+            self.advance()
+            while self.current_token[-1] != '"':
+                return_val += ' ' + self.current_token[1:]
+                self.advance()
+            return return_val
+        else:
+            return self.current_token[2:-1]
 
     def int_val(self):
         return int(self.current_token)
