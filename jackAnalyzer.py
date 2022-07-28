@@ -25,7 +25,8 @@ for file in files:
         # print(token_type)
         match token_type:
             case TokenType.STRING_CONST:
-                print(f'|{tokenizer.string_val()}|')
+                # print(f'|{tokenizer.string_val()}|🌟')
+                tokens.write(f'<stringConstant> {tokenizer.string_val()} </stringConstant>\n')
             case TokenType.INT_CONST:
                 print(f'|{tokenizer.int_val()}|')
                 tokens.write(f'<integerConstant> {tokenizer.int_val()} </integerConstant>\n')

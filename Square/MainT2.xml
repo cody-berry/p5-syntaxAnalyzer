@@ -70,8 +70,7 @@
 <keyword> let </keyword>
 <identifier> s </identifier>
 <symbol> = </symbol>
-<identifier> "string </identifier>
-<identifier> constant" </identifier>
+<stringConstant> string constant </stringConstant>
 <symbol> ; </symbol>
 <keyword> let </keyword>
 <identifier> s </identifier>

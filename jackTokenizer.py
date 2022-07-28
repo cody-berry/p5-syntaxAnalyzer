@@ -145,7 +145,7 @@ class JackTokenizer:
         if self.current_token[0] in ['0', '1', '2', '3', '4', '5', '6', '7',
                                      '8', '9']:
             return TokenType.INT_CONST
-        if self.current_token[0] == ['"']:
+        if self.current_token[0] == '"':
             return TokenType.STRING_CONST
         else:
             return TokenType.IDENTIFIER
@@ -154,15 +154,16 @@ class JackTokenizer:
         # self.advance()  # like this we're skipping the first token (") so that the next token is our actual string constant
         # return_val = self.current_token
         # self.advance()  # like this we're skipping the last token (") so that the next token is the token right after the string
-        if self.current_token[-1] == '"':
-            return_val = self.current_token[2:]
+        if self.current_token[-1] != '"':
+            return_val = self.current_token[1:]
             self.advance()
             while self.current_token[-1] != '"':
-                return_val += ' ' + self.current_token[1:]
+                return_val += ' ' + self.current_token
                 self.advance()
+            return_val += ' ' + self.current_token[:-1]
             return return_val
         else:
-            return self.current_token[2:-1]
+            return self.current_token[1:-1]
 
     def int_val(self):
         return int(self.current_token)
