@@ -42,7 +42,7 @@ tokenizer = JackTokenizer(file)
 compileEngine = CompilationEngine(file, tokenizer)
 
 
-compileEngine.checkToken(['class', '1'])
+
 
 
 
