@@ -2,4 +2,5 @@
 <keyword>class</keyword>
 <identifier>Main</identifier>
 <symbol>{</symbol>
-</class>
+<classVarDec>
+<keyword>static</keyword>
