@@ -116,7 +116,6 @@ class JackTokenizer:
             self.advance()
 
         print(f'|{self.current_token}| {rest_of_line}')
-        print('🆚')
 
         if self.current_token:
             while self.current_token[-1] == ' ':
@@ -131,7 +130,6 @@ class JackTokenizer:
                 self.current_token = '&amp;'
 
     def token_type(self):
-        print(self.current_token[0])
         if self.current_token in ['class', 'constructor', 'function', 'method',
                                   'field', 'static', 'var', 'int', 'char',
                                   'boolean', 'void', 'true', 'false', 'null',
