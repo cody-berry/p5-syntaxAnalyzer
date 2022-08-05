@@ -1,6 +1,7 @@
 <class>
-<keyword>class</keyword>
+	<keyword>class</keyword>
 <identifier>Main</identifier>
-<symbol>{</symbol>
-<classVarDec>
-<keyword>static</keyword>
+	<symbol>{</symbol>
+	<classVarDec>
+		<keyword>static</keyword>
+		<keyword>boolean</keyword>

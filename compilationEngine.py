@@ -5,6 +5,7 @@ class CompilationEngine:
     def __init__(self, filename, tokenizer):
         self.jack_tokenizer = tokenizer
         self.output = open(filename[:-5] + 'C.xml', 'w')
+        self.indents = 1
         self.compile_class()
 
     # advances a token and checks if it is the correct one, if given a list sees if it is in the list
@@ -14,6 +15,9 @@ class CompilationEngine:
         wrote = False
         for token in token_and_type:
             if self.jack_tokenizer.current_token == token[0]:
+                for i in range(0, self.indents):
+                    self.output.write('\t')
+
                 self.output.write(
                     '<' + token[1] + '>' + token[0] + '</' + token[1] + '>\n'
                 )
@@ -24,6 +28,9 @@ class CompilationEngine:
 
     def compile_identifier(self):
         if self.jack_tokenizer.token_type() == TokenType.IDENTIFIER:
+            for i in range(0, self.indents):
+                self.output.write('\t')
+
             self.output.write(
                 '<identifier>' + self.jack_tokenizer.current_token + '</identifier>\n')
         else:
@@ -41,13 +48,17 @@ class CompilationEngine:
         self.checkToken(['{', 'symbol'])
         while True:
             try:
+                self.indents += 1
                 self.compile_class_var_dec()
+                self.indents -= 1
             except:
                 break
 
         while True:
             try:
+                self.indents += 1
                 self.compile_subroutine_dec()
+                self.indents -= 1
             except:
                 break
         self.checkToken(['}', 'symbol'])
@@ -58,7 +69,7 @@ class CompilationEngine:
 
     def compile_class_var_dec(self):
         self.output.write(
-            '<classVarDec>\n'
+            '\t<classVarDec>\n'
         )
 
         self.checkToken(['static', 'keyword'], ['field', 'keyword'])
@@ -75,5 +86,11 @@ class CompilationEngine:
         self.checkToken([';', 'symbol'])
 
         self.output.write(
-            '</classVarDec>'
+            '\t</classVarDec>\n'
         )
+
+    def compile_type(self):
+        try:
+            self.checkToken(['int', 'keyword'], ['char', 'keyword'], ['boolean', 'keyword'])
+        except:
+            self.compile_identifier()
