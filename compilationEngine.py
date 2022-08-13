@@ -9,7 +9,7 @@ class CompilationEngine:
         self.compile_class()
 
     # advances a token and checks if it is the correct one, if given a list sees if it is in the list
-    def checkToken(self, advance, *token_and_type):
+    def check_token(self, advance, *token_and_type):
         if advance:
             self.jack_tokenizer.advance()
 
@@ -31,7 +31,6 @@ class CompilationEngine:
         if advance:
             self.jack_tokenizer.advance()
 
-
         if self.jack_tokenizer.token_type() == TokenType.IDENTIFIER:
             for i in range(0, self.indents):
                 self.output.write('\t')
@@ -47,10 +46,10 @@ class CompilationEngine:
             '<class>\n'
         )
 
-        self.checkToken(True, ['class', 'keyword'])
+        self.check_token(True, ['class', 'keyword'])
         self.compile_identifier(True)
 
-        self.checkToken(True, ['{', 'symbol'])
+        self.check_token(True, ['{', 'symbol'])
         while True:
             try:
                 self.indents += 1
@@ -68,7 +67,7 @@ class CompilationEngine:
             except ValueError:
                 self.indents -= 1
                 break
-        self.checkToken(['}', 'symbol'])
+        self.check_token(['}', 'symbol'])
 
         self.output.write(
             '</class>'
@@ -79,18 +78,18 @@ class CompilationEngine:
             '\t<classVarDec>\n'
         )
 
-        self.checkToken(True, ['static', 'keyword'], ['field', 'keyword'])
+        self.check_token(True, ['static', 'keyword'], ['field', 'keyword'])
         self.compile_type(True)
         self.compile_identifier(True)
 
         while True:
             try:
-                self.checkToken(True, [',', 'symbol'])
+                self.check_token(True, [',', 'symbol'])
                 self.compile_identifier(True)
             except:
                 break
 
-        self.checkToken(False, [';', 'symbol'])
+        self.check_token(False, [';', 'symbol'])
 
         self.output.write(
             '\t</classVarDec>\n'
@@ -98,26 +97,28 @@ class CompilationEngine:
 
     def compile_type(self, advance):
         try:
-            self.checkToken(advance, ['int', 'keyword'], ['char', 'keyword'], ['boolean', 'keyword'])
+            self.check_token(advance, ['int', 'keyword'], ['char', 'keyword'],
+                             ['boolean', 'keyword'])
         except:
-            self.compile_identifier(True)
+            self.compile_identifier(False)
 
     def compile_subroutine_dec(self):
         self.output.write(
             '\t<subroutineDec>\n'
         )
 
-        self.checkToken(False, ['constructor', 'keyword'], ['function', 'keyword'], ['method', 'keyword'])
+        self.check_token(False, ['constructor', 'keyword'],
+                         ['function', 'keyword'], ['method', 'keyword'])
         try:
-            self.checkToken(True, ['void', 'keyword'])
+            self.check_token(True, ['void', 'keyword'])
         except:
             self.compile_type(False)
         self.compile_identifier(True)
-        self.checkToken(True, ['(', 'symbol'])
+        self.check_token(True, ['(', 'symbol'])
         self.indents += 1
         self.compile_parameter_list()
         self.indents -= 1
-        self.checkToken(True, [')', 'symbol'])
+        self.check_token(False, [')', 'symbol'])
         self.indents += 1
         self.compile_subroutine_body()
         self.indents -= 1
@@ -136,7 +137,7 @@ class CompilationEngine:
             self.compile_identifier(True)
             while True:
                 try:
-                    self.checkToken(True, [',', 'symbol'])
+                    self.check_token(True, [',', 'symbol'])
                     self.compile_type(True)
                     self.compile_identifier(True)
                 except:
@@ -146,4 +147,46 @@ class CompilationEngine:
 
         self.output.write(
             '\t\t</parameterList>\n'
+        )
+
+    def compile_subroutine_body(self):
+        self.output.write(
+            '\t\t<subroutineBody>\n'
+        )
+
+        self.check_token(True, ['{', 'symbol'])
+        while True:
+            try:
+                self.indents += 1
+                self.compile_var_dec()
+                self.indents -= 1
+            except:
+                self.indents -= 1
+                break
+        self.compile_statements()
+        self.check_token(True, ['}', 'symbol'])
+
+        self.output.write(
+            '\t\t</subroutineBody>\n'
+        )
+
+    def compile_var_dec(self):
+        self.output.write(
+            '\t\t\t<varDec>\n'
+        )
+
+        self.check_token(True, ['var', 'keyword'])
+        print('asdf')
+        self.compile_type(True)
+        self.compile_identifier(True)
+        while True:
+            try:
+                self.check_token(True, [',', 'symbol'])
+                self.compile_identifier(True)
+            except:
+                break
+        self.check_token(False, [';', 'symbol'])
+
+        self.output.write(
+            '\t\t\t</varDec>\n'
         )
