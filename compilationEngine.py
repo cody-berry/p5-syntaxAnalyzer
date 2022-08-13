@@ -190,3 +190,10 @@ class CompilationEngine:
         self.output.write(
             '\t\t\t</varDec>\n'
         )
+
+    def compile_statements(self):
+        while True:
+            try:
+                self.compile_statement()
+            except:
+                break
