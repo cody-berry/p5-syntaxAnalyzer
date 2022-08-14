@@ -176,7 +176,6 @@ class CompilationEngine:
         )
 
         self.check_token(True, ['var', 'keyword'])
-        print('asdf')
         self.compile_type(True)
         self.compile_identifier(True)
         while True:
@@ -192,8 +191,33 @@ class CompilationEngine:
         )
 
     def compile_statements(self):
+        self.output.write(
+            '\t\t\t<statements>\n'
+        )
+
         while True:
             try:
                 self.compile_statement()
             except:
                 break
+
+        self.output.write(
+            '\t\t\t</statements>\n'
+        )
+
+    def compile_statement(self):
+        try:
+            self.compile_let()
+        except:
+            try:
+                self.compile_if()
+            except:
+                try:
+                    self.compile_do()
+                except:
+                    try:
+                        self.compile_while()
+                    except:
+                        self.compile_return()
+
+
