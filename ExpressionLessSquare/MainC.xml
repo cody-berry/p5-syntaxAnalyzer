@@ -32,4 +32,6 @@
 					<identifier> game </identifier>
 					<symbol> = </symbol>
 				<ifStatement>
+				<doStatement>
+				<whileStatement>
 				</statements>

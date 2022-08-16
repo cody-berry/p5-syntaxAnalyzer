@@ -285,3 +285,61 @@ class CompilationEngine:
             '</ifStatement>\n'
         )
 
+    def compile_while(self):
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '<whileStatement>\n'
+        )
+
+        self.check_token(False, ['while', 'keyword'])
+        self.check_token(True, ['(', 'symbol'])
+        self.compile_expression()
+        self.check_token(True, ['{', 'symbol'])
+        self.compile_statements()
+        self.check_token(True, ['}', 'symbol'])
+
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '</whileStatement>\n'
+        )
+
+    def compile_do(self):
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '<doStatement>\n'
+        )
+
+        self.check_token(False, ['do', 'keyword'])
+        self.compile_subroutine_call()
+        self.check_token(True, [';', 'symbol'])
+
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '</doStatement>\n'
+        )
+
+    def compile_return(self):
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '<returnStatement>\n'
+        )
+
+        self.check_token(True, ['return', 'keyword'])
+        try:
+            self.compile_expression()
+        except:
+            pass
+        self.check_token(True, [';', 'symbol'])
+
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '</returnStatement>\n'
+        )
+
+
