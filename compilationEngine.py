@@ -231,7 +231,7 @@ class CompilationEngine:
                         self.compile_return()
 
     def compile_let(self):
-        for indentNum in range(0, self.indents):
+        for indentNum in range(0, self.indents-1):
             self.output.write('\t')
         self.output.write(
             '<letStatement>\n'
@@ -253,9 +253,35 @@ class CompilationEngine:
         self.compile_expression()
         self.check_token(True, [';', 'symbol'])
 
-        for indentNum in range(0, self.indents):
+        for indentNum in range(0, self.indents-1):
             self.output.write('\t')
         self.output.write(
             '</letStatement>\n'
+        )
+
+    def compile_if(self):
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '<ifStatement>\n'
+        )
+
+        self.check_token(False, ['if', 'keyword'])
+        self.check_token(True, ['(', 'symbol'])
+        self.compile_expression()
+        self.check_token(True, ['{', 'symbol'])
+        self.compile_statements()
+        self.check_token(True, ['}', 'symbol'])
+        try:
+            self.check_token(True, ['else', 'keyword'])
+            self.check_token(True, ['{', 'symbol'])
+            self.compile_statements()
+        except:
+            pass
+
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '</ifStatement>\n'
         )
 

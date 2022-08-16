@@ -27,8 +27,9 @@
 			</varDec>
 			<varDec>
 				<statements>
-					<letStatement>
+				<letStatement>
 					<keyword> let </keyword>
 					<identifier> game </identifier>
 					<symbol> = </symbol>
+				<ifStatement>
 				</statements>
