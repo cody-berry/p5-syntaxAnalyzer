@@ -163,7 +163,9 @@ class CompilationEngine:
             except:
                 self.indents -= 1
                 break
+        self.indents += 1
         self.compile_statements()
+        self.indents -= 1
         self.check_token(True, ['}', 'symbol'])
 
         self.output.write(
@@ -191,18 +193,26 @@ class CompilationEngine:
         )
 
     def compile_statements(self):
+        for indentNum in range(0, self.indents):
+            self.output.write('\t')
+
         self.output.write(
-            '\t\t\t<statements>\n'
+            '<statements>\n'
         )
 
         while True:
             try:
+                self.indents += 1
                 self.compile_statement()
+                self.indents -= 1
             except:
+                self.indents -= 1
                 break
 
+        for indentNum in range(0, self.indents):
+            self.output.write('\t')
         self.output.write(
-            '\t\t\t</statements>\n'
+            '</statements>\n'
         )
 
     def compile_statement(self):
@@ -220,4 +230,32 @@ class CompilationEngine:
                     except:
                         self.compile_return()
 
+    def compile_let(self):
+        for indentNum in range(0, self.indents):
+            self.output.write('\t')
+        self.output.write(
+            '<letStatement>\n'
+        )
+
+        self.check_token(False, ['let', 'keyword'])
+        self.compile_identifier(True)
+
+        try:
+            self.check_token(True, ['[', 'symbol'])
+            self.compile_expression()
+            self.check_token(True, [']', 'symbol'])
+        except:
+            self.check_token(False, ['=', 'symbol'])
+            pass
+        else:
+            self.check_token(True, ['=', 'symbol'])
+
+        self.compile_expression()
+        self.check_token(True, [';', 'symbol'])
+
+        for indentNum in range(0, self.indents):
+            self.output.write('\t')
+        self.output.write(
+            '</letStatement>\n'
+        )
 
