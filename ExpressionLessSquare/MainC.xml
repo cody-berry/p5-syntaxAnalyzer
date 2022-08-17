@@ -8,7 +8,6 @@
 		<identifier> test </identifier>
 		<symbol> ; </symbol>
 	</classVarDec>
-	<classVarDec>
 	<subroutineDec>
 		<keyword> function </keyword>
 		<keyword> void </keyword>
@@ -37,3 +36,7 @@
 						<symbol> ; </symbol>
 					</letStatement>
 				</statements>
+			</varDec>
+		</subroutineBody>
+	</subroutineDec>
+</class>

@@ -316,7 +316,18 @@ class CompilationEngine:
         )
 
         self.check_token(False, ['do', 'keyword'])
-        self.compile_subroutine_call()
+        self.compile_identifier(True)
+        try:
+            self.check_token(True, ['(', 'symbol'])
+            self.compile_expression_list()
+            self.check_token(False, [')', 'symbol'])
+        except:
+            self.check_token(False, ['.', 'symbol'])
+            self.compile_identifier(True)
+            self.check_token(True, ['(', 'symbol'])
+            self.compile_expression_list()
+            self.check_token(False, [')', 'symbol'])
+
         self.check_token(True, [';', 'symbol'])
 
         for indentNum in range(0, self.indents-1):
@@ -367,4 +378,5 @@ class CompilationEngine:
             '</expression>\n'
         )
         self.indents -= 1
+
 
