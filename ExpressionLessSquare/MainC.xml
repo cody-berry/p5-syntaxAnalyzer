@@ -27,11 +27,13 @@
 			</varDec>
 			<varDec>
 				<statements>
-				<letStatement>
-					<keyword> let </keyword>
-					<identifier> game </identifier>
-					<symbol> = </symbol>
-				<ifStatement>
-				<doStatement>
-				<whileStatement>
+					<letStatement>
+						<keyword> let </keyword>
+						<identifier> game </identifier>
+						<symbol> = </symbol>
+						<expression>
+							<identifier> game </identifier>
+						</expression>
+						<symbol> ; </symbol>
+					</letStatement>
 				</statements>

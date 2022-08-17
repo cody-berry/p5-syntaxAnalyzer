@@ -216,19 +216,22 @@ class CompilationEngine:
         )
 
     def compile_statement(self):
-        try:
-            self.compile_let()
-        except:
+        if self.jack_tokenizer.current_token in ['let', 'do', 'return', 'which', 'do']:
+            self.indents += 1
             try:
-                self.compile_if()
+                self.compile_let()
             except:
                 try:
-                    self.compile_do()
+                    self.compile_if()
                 except:
                     try:
-                        self.compile_while()
+                        self.compile_do()
                     except:
-                        self.compile_return()
+                        try:
+                            self.compile_while()
+                        except:
+                            self.compile_return()
+            self.indents -= 1
 
     def compile_let(self):
         for indentNum in range(0, self.indents-1):
@@ -243,7 +246,7 @@ class CompilationEngine:
         try:
             self.check_token(True, ['[', 'symbol'])
             self.compile_expression()
-            self.check_token(True, [']', 'symbol'])
+            self.check_token(False, [']', 'symbol'])
         except:
             self.check_token(False, ['=', 'symbol'])
             pass
@@ -251,7 +254,7 @@ class CompilationEngine:
             self.check_token(True, ['=', 'symbol'])
 
         self.compile_expression()
-        self.check_token(True, [';', 'symbol'])
+        self.check_token(False, [';', 'symbol'])
 
         for indentNum in range(0, self.indents-1):
             self.output.write('\t')
@@ -269,7 +272,7 @@ class CompilationEngine:
         self.check_token(False, ['if', 'keyword'])
         self.check_token(True, ['(', 'symbol'])
         self.compile_expression()
-        self.check_token(True, ['{', 'symbol'])
+        self.check_token(False, ['{', 'symbol'])
         self.compile_statements()
         self.check_token(True, ['}', 'symbol'])
         try:
@@ -295,7 +298,7 @@ class CompilationEngine:
         self.check_token(False, ['while', 'keyword'])
         self.check_token(True, ['(', 'symbol'])
         self.compile_expression()
-        self.check_token(True, ['{', 'symbol'])
+        self.check_token(False, ['{', 'symbol'])
         self.compile_statements()
         self.check_token(True, ['}', 'symbol'])
 
@@ -334,7 +337,7 @@ class CompilationEngine:
             self.compile_expression()
         except:
             pass
-        self.check_token(True, [';', 'symbol'])
+        self.check_token(False, [';', 'symbol'])
 
         for indentNum in range(0, self.indents-1):
             self.output.write('\t')
@@ -342,4 +345,26 @@ class CompilationEngine:
             '</returnStatement>\n'
         )
 
+    def compile_expression(self):
+        self.indents += 1
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '<expression>\n'
+        )
+
+        self.compile_identifier(True)
+        while True:
+            try:
+                self.check_token(True, ['+', 'symbol'], ['-', 'symbol'], ['*', 'symbol'], ['/', 'symbol'], ['&', 'symbol'], ['|', 'symbol'], ['<', 'symbol'], ['>', 'symbol'], ['=', 'symbol'])
+                self.compile_identifier(True)
+            except:
+                break
+
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '</expression>\n'
+        )
+        self.indents -= 1
 
