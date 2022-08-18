@@ -403,7 +403,14 @@ class CompilationEngine:
                 self.check_token(False, ['true', 'keyword'], ['false', 'keyword'], ['null', 'keyword'], ['this', 'keyword'])
             case TokenType.IDENTIFIER:
                 self.compile_identifier(False)
-
+            case _:
+                try:
+                    self.check_token(True, ['~', 'symbol'], ['-', 'symbol'])
+                    self.compile_term()
+                except:
+                    self.check_token(False, ['(', 'symbol'])
+                    self.compile_expression()
+                    self.check_token(False, [')', 'symbol'])
 
         for indentNum in range(0, self.indents-1):
             self.output.write('\t')
