@@ -163,9 +163,7 @@ class CompilationEngine:
             except:
                 self.indents -= 1
                 break
-        self.indents += 1
         self.compile_statements()
-        self.indents -= 1
         self.check_token(True, ['}', 'symbol'])
 
         self.output.write(
@@ -216,6 +214,7 @@ class CompilationEngine:
         )
 
     def compile_statement(self):
+        print(self.jack_tokenizer.current_token)
         if self.jack_tokenizer.current_token in ['let', 'do', 'return', 'which', 'do']:
             self.indents += 1
             try:
@@ -232,6 +231,9 @@ class CompilationEngine:
                         except:
                             self.compile_return()
             self.indents -= 1
+            self.jack_tokenizer.advance()
+        else:
+            raise ValueError('wrong statement beginning')
 
     def compile_let(self):
         for indentNum in range(0, self.indents-1):
@@ -364,11 +366,11 @@ class CompilationEngine:
             '<expression>\n'
         )
 
-        self.compile_identifier(True)
+        self.compile_term()
         while True:
             try:
                 self.check_token(True, ['+', 'symbol'], ['-', 'symbol'], ['*', 'symbol'], ['/', 'symbol'], ['&', 'symbol'], ['|', 'symbol'], ['<', 'symbol'], ['>', 'symbol'], ['=', 'symbol'])
-                self.compile_identifier(True)
+                self.compile_term()
             except:
                 break
 
@@ -378,5 +380,38 @@ class CompilationEngine:
             '</expression>\n'
         )
         self.indents -= 1
+
+    def compile_term(self):
+        self.indents += 1
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '<term>\n'
+        )
+
+        self.jack_tokenizer.advance()
+        match self.jack_tokenizer.token_type():
+            case TokenType.INT_CONST:
+                self.output.write(
+                    '<integerConstant>' + self.jack_tokenizer.current_token + '</integerConstant>\n'
+                )
+            case TokenType.STRING_CONST:
+                self.output.write(
+                    '<stringConstant>' + self.jack_tokenizer.current_token + '</stringConstant>\n'
+                )
+            case TokenType.KEYWORD:
+                self.check_token(False, ['true', 'keyword'], ['false', 'keyword'], ['null', 'keyword'], ['this', 'keyword'])
+            case TokenType.IDENTIFIER:
+                self.compile_identifier(False)
+
+
+        for indentNum in range(0, self.indents-1):
+            self.output.write('\t')
+        self.output.write(
+            '</term>\n'
+        )
+        self.indents -= 1
+
+
 
 

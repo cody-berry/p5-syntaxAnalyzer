@@ -8,6 +8,7 @@
 		<identifier> test </identifier>
 		<symbol> ; </symbol>
 	</classVarDec>
+	<classVarDec>
 	<subroutineDec>
 		<keyword> function </keyword>
 		<keyword> void </keyword>
@@ -25,18 +26,26 @@
 				<symbol> ; </symbol>
 			</varDec>
 			<varDec>
-				<statements>
-					<letStatement>
-						<keyword> let </keyword>
-						<identifier> game </identifier>
-						<symbol> = </symbol>
-						<expression>
+			<statements>
+				<letStatement>
+					<keyword> let </keyword>
+					<identifier> game </identifier>
+					<symbol> = </symbol>
+					<expression>
+						<term>
 							<identifier> game </identifier>
-						</expression>
-						<symbol> ; </symbol>
-					</letStatement>
+						</term>
+					</expression>
+					<symbol> ; </symbol>
+				</letStatement>
+				<letStatement>
+				<ifStatement>
+				<doStatement>
+					<keyword> do </keyword>
+					<identifier> game </identifier>
+					<symbol> . </symbol>
+					<identifier> run </identifier>
+					<symbol> ( </symbol>
+				<whileStatement>
+				<returnStatement>
 				</statements>
-			</varDec>
-		</subroutineBody>
-	</subroutineDec>
-</class>
