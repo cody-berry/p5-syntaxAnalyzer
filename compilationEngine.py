@@ -3,24 +3,34 @@ from jackTokenizer import *
 
 class CompilationEngine:
     def __init__(self, filename, tokenizer):
-        self.jack_tokenizer = tokenizer
+        self.tokenizer = tokenizer
         self.output = open(filename[:-5] + 'C.xml', 'w')
         self.indents = 1
         self.compile_class()
 
-    # advances a token and checks if it is the correct one, if given a list sees if it is in the list
-    def check_token(self, advance, *token_and_type):
+    # advances
+    def advance(self):
+        if self.tokenizer.hasMoreTokens():
+            print('advancing')
+            self.tokenizer.advance()
+            print(self.tokenizer.current_token + '|')
+
+    # advances a token and checks if it is the correct one,
+    # if given a list sees if it is in the list
+    def check_token(self, advance, tokens):
         if advance:
-            self.jack_tokenizer.advance()
+            self.advance()
 
         wrote = False
-        for token in token_and_type:
-            if self.jack_tokenizer.current_token == token[0]:
+        for token in tokens:
+            print(token)
+            if self.tokenizer.current_token == token:
                 for i in range(0, self.indents):
                     self.output.write('\t')
 
                 self.output.write(
-                    '<' + token[1] + '> ' + token[0] + ' </' + token[1] + '>\n'
+                    '<' + self.tokenizer.token_type().name.lower() + '> ' + token +
+                    ' </' + self.tokenizer.token_type().name.lower() + '>\n'
                 )
                 wrote = True
 
@@ -29,396 +39,45 @@ class CompilationEngine:
 
     def compile_identifier(self, advance):
         if advance:
-            self.jack_tokenizer.advance()
+            self.advance()
 
-        if self.jack_tokenizer.token_type() == TokenType.IDENTIFIER:
+        if self.tokenizer.token_type() == TokenType.IDENTIFIER:
             for i in range(0, self.indents):
                 self.output.write('\t')
 
             self.output.write(
-                '<identifier> ' + self.jack_tokenizer.current_token + ' </identifier>\n')
+                '<identifier> ' + self.tokenizer.current_token + ' </identifier>\n')
         else:
-            print(self.jack_tokenizer.token_type())
+            print(self.tokenizer.token_type())
             raise ValueError('The current token is incorrect.')
 
+    # grammar: 'class' identifier '{' classVarDec* subroutineDec* '}'
     def compile_class(self):
-        self.output.write(
-            '<class>\n'
-        )
+        self.output.write('<class>\n')
 
-        self.check_token(True, ['class', 'keyword'])
+        # 'class'
+        self.check_token(True, ['class'])
+
+        # identifier
         self.compile_identifier(True)
 
-        self.check_token(True, ['{', 'symbol'])
-        while True:
-            try:
-                self.indents += 1
-                self.compile_class_var_dec()
-                self.indents -= 1
-            except ValueError:
-                self.indents -= 1
-                break
+        # '{'
+        self.check_token(True, ['{'])
 
-        while True:
-            try:
-                self.indents += 1
-                self.compile_subroutine_dec()
-                self.indents -= 1
-            except ValueError:
-                self.indents -= 1
-                break
-        self.check_token(['}', 'symbol'])
+        self.advance()
+        # classVarDec*
+        while self.tokenizer.current_token in ['static', 'field']:
+            self.compile_class_var_dec()
+            self.advance()
 
-        self.output.write(
-            '</class>'
-        )
+        # subroutineVarDec*
+        while self.tokenizer.current_token in ['constructor', 'function', 'method']:
+            self.compile_subroutine_dec()
+            self.advance()
 
-    def compile_class_var_dec(self):
-        self.output.write(
-            '\t<classVarDec>\n'
-        )
+        # '}'
 
-        self.check_token(True, ['static', 'keyword'], ['field', 'keyword'])
-        self.compile_type(True)
-        self.compile_identifier(True)
-
-        while True:
-            try:
-                self.check_token(True, [',', 'symbol'])
-                self.compile_identifier(True)
-            except:
-                break
-
-        self.check_token(False, [';', 'symbol'])
-
-        self.output.write(
-            '\t</classVarDec>\n'
-        )
-
-    def compile_type(self, advance):
-        try:
-            self.check_token(advance, ['int', 'keyword'], ['char', 'keyword'],
-                             ['boolean', 'keyword'])
-        except:
-            self.compile_identifier(False)
-
-    def compile_subroutine_dec(self):
-        self.output.write(
-            '\t<subroutineDec>\n'
-        )
-
-        self.check_token(False, ['constructor', 'keyword'],
-                         ['function', 'keyword'], ['method', 'keyword'])
-        try:
-            self.check_token(True, ['void', 'keyword'])
-        except:
-            self.compile_type(False)
-        self.compile_identifier(True)
-        self.check_token(True, ['(', 'symbol'])
-        self.indents += 1
-        self.compile_parameter_list()
-        self.indents -= 1
-        self.check_token(False, [')', 'symbol'])
-        self.indents += 1
-        self.compile_subroutine_body()
-        self.indents -= 1
-
-        self.output.write(
-            '\t</subroutineDec>\n'
-        )
-
-    def compile_parameter_list(self):
-        self.output.write(
-            '\t\t<parameterList>\n'
-        )
-
-        try:
-            self.compile_type(True)
-            self.compile_identifier(True)
-            while True:
-                try:
-                    self.check_token(True, [',', 'symbol'])
-                    self.compile_type(True)
-                    self.compile_identifier(True)
-                except:
-                    break
-        except:
-            pass
-
-        self.output.write(
-            '\t\t</parameterList>\n'
-        )
-
-    def compile_subroutine_body(self):
-        self.output.write(
-            '\t\t<subroutineBody>\n'
-        )
-
-        self.check_token(True, ['{', 'symbol'])
-        while True:
-            try:
-                self.indents += 1
-                self.compile_var_dec()
-                self.indents -= 1
-            except:
-                self.indents -= 1
-                break
-        self.compile_statements()
-        self.check_token(True, ['}', 'symbol'])
-
-        self.output.write(
-            '\t\t</subroutineBody>\n'
-        )
-
-    def compile_var_dec(self):
-        self.output.write(
-            '\t\t\t<varDec>\n'
-        )
-
-        self.check_token(True, ['var', 'keyword'])
-        self.compile_type(True)
-        self.compile_identifier(True)
-        while True:
-            try:
-                self.check_token(True, [',', 'symbol'])
-                self.compile_identifier(True)
-            except:
-                break
-        self.check_token(False, [';', 'symbol'])
-
-        self.output.write(
-            '\t\t\t</varDec>\n'
-        )
-
-    def compile_statements(self):
-        for indentNum in range(0, self.indents):
-            self.output.write('\t')
-
-        self.output.write(
-            '<statements>\n'
-        )
-
-        while True:
-            try:
-                self.indents += 1
-                self.compile_statement()
-                self.indents -= 1
-            except:
-                self.indents -= 1
-                break
-
-        for indentNum in range(0, self.indents):
-            self.output.write('\t')
-        self.output.write(
-            '</statements>\n'
-        )
-
-    def compile_statement(self):
-        print(self.jack_tokenizer.current_token)
-        if self.jack_tokenizer.current_token in ['let', 'do', 'return', 'which', 'do']:
-            self.indents += 1
-            try:
-                self.compile_let()
-            except:
-                try:
-                    self.compile_if()
-                except:
-                    try:
-                        self.compile_do()
-                    except:
-                        try:
-                            self.compile_while()
-                        except:
-                            self.compile_return()
-            self.indents -= 1
-            self.jack_tokenizer.advance()
-        else:
-            raise ValueError('wrong statement beginning')
-
-    def compile_let(self):
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<letStatement>\n'
-        )
-
-        self.check_token(False, ['let', 'keyword'])
-        self.compile_identifier(True)
-
-        try:
-            self.check_token(True, ['[', 'symbol'])
-            self.compile_expression()
-            self.check_token(False, [']', 'symbol'])
-        except:
-            self.check_token(False, ['=', 'symbol'])
-            pass
-        else:
-            self.check_token(True, ['=', 'symbol'])
-
-        self.compile_expression()
-        self.check_token(False, [';', 'symbol'])
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</letStatement>\n'
-        )
-
-    def compile_if(self):
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<ifStatement>\n'
-        )
-
-        self.check_token(False, ['if', 'keyword'])
-        self.check_token(True, ['(', 'symbol'])
-        self.compile_expression()
-        self.check_token(False, ['{', 'symbol'])
-        self.compile_statements()
-        self.check_token(True, ['}', 'symbol'])
-        try:
-            self.check_token(True, ['else', 'keyword'])
-            self.check_token(True, ['{', 'symbol'])
-            self.compile_statements()
-        except:
-            pass
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</ifStatement>\n'
-        )
-
-    def compile_while(self):
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<whileStatement>\n'
-        )
-
-        self.check_token(False, ['while', 'keyword'])
-        self.check_token(True, ['(', 'symbol'])
-        self.compile_expression()
-        self.check_token(False, ['{', 'symbol'])
-        self.compile_statements()
-        self.check_token(True, ['}', 'symbol'])
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</whileStatement>\n'
-        )
-
-    def compile_do(self):
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<doStatement>\n'
-        )
-
-        self.check_token(False, ['do', 'keyword'])
-        self.compile_identifier(True)
-        try:
-            self.check_token(True, ['(', 'symbol'])
-            self.compile_expression_list()
-            self.check_token(False, [')', 'symbol'])
-        except:
-            self.check_token(False, ['.', 'symbol'])
-            self.compile_identifier(True)
-            self.check_token(True, ['(', 'symbol'])
-            self.compile_expression_list()
-            self.check_token(False, [')', 'symbol'])
-
-        self.check_token(True, [';', 'symbol'])
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</doStatement>\n'
-        )
-
-    def compile_return(self):
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<returnStatement>\n'
-        )
-
-        self.check_token(True, ['return', 'keyword'])
-        try:
-            self.compile_expression()
-        except:
-            pass
-        self.check_token(False, [';', 'symbol'])
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</returnStatement>\n'
-        )
-
-    def compile_expression(self):
-        self.indents += 1
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<expression>\n'
-        )
-
-        self.compile_term()
-        while True:
-            try:
-                self.check_token(True, ['+', 'symbol'], ['-', 'symbol'], ['*', 'symbol'], ['/', 'symbol'], ['&', 'symbol'], ['|', 'symbol'], ['<', 'symbol'], ['>', 'symbol'], ['=', 'symbol'])
-                self.compile_term()
-            except:
-                break
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</expression>\n'
-        )
-        self.indents -= 1
-
-    def compile_term(self):
-        self.indents += 1
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '<term>\n'
-        )
-
-        self.jack_tokenizer.advance()
-        match self.jack_tokenizer.token_type():
-            case TokenType.INT_CONST:
-                self.output.write(
-                    '<integerConstant>' + self.jack_tokenizer.current_token + '</integerConstant>\n'
-                )
-            case TokenType.STRING_CONST:
-                self.output.write(
-                    '<stringConstant>' + self.jack_tokenizer.current_token + '</stringConstant>\n'
-                )
-            case TokenType.KEYWORD:
-                self.check_token(False, ['true', 'keyword'], ['false', 'keyword'], ['null', 'keyword'], ['this', 'keyword'])
-            case TokenType.IDENTIFIER:
-                self.compile_identifier(False)
-            case _:
-                try:
-                    self.check_token(True, ['~', 'symbol'], ['-', 'symbol'])
-                    self.compile_term()
-                except:
-                    self.check_token(False, ['(', 'symbol'])
-                    self.compile_expression()
-                    self.check_token(False, [')', 'symbol'])
-
-        for indentNum in range(0, self.indents-1):
-            self.output.write('\t')
-        self.output.write(
-            '</term>\n'
-        )
-        self.indents -= 1
-
+        self.output.write('</class\n')
 
 
 
