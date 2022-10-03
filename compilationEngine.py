@@ -26,7 +26,7 @@ class CompilationEngine:
             print(token)
             if self.tokenizer.current_token == token:
                 for i in range(0, self.indents):
-                    self.output.write('\t')
+                    self.output.write('  ')
 
                 self.output.write(
                     '<' + self.tokenizer.token_type().name.lower() + '> ' + token +
@@ -43,7 +43,7 @@ class CompilationEngine:
 
         if self.tokenizer.token_type() == TokenType.IDENTIFIER:
             for i in range(0, self.indents):
-                self.output.write('\t')
+                self.output.write('  ')
 
             self.output.write(
                 '<identifier> ' + self.tokenizer.current_token + ' </identifier>\n')
@@ -72,12 +72,45 @@ class CompilationEngine:
 
         # subroutineVarDec*
         while self.tokenizer.current_token in ['constructor', 'function', 'method']:
-            self.compile_subroutine_dec()
+            # self.compile_subroutine_dec()
             self.advance()
 
         # '}'
+        self.check_token(False, ['}'])
 
         self.output.write('</class\n')
+
+    # grammar: 'static'/'field' type varname (',' varName)* ';'
+    def compile_class_var_dec(self):
+        self.output.write('  <classVarDec>\n')
+        self.indents += 1
+
+        # 'static'/'field'
+        self.check_token(False, ['static', 'field'])
+
+        # type
+        self.compile_type(True)
+
+        # varName
+        self.compile_identifier(True)
+
+        self.advance()
+        # *(,
+        while (self.tokenizer.current_token == ','):
+            self.check_token(False, ',')
+
+            # varName)
+            self.compile_identifier(True)
+            self.advance()
+
+        self.indents -= 1
+        self.output.write('  </classVarDec>\n')
+
+    # grammar: constructor/function/method void/type subroutineName
+    # '(' parameterList ')' subroutineBody
+    def compile_subroutine_dec(self):
+        pass
+
 
 
 
