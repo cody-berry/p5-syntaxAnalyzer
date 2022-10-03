@@ -80,7 +80,7 @@ class CompilationEngine:
 
         self.output.write('</class\n')
 
-    # grammar: 'static'/'field' type varname (',' varName)* ';'
+    # grammar: 'static'/'field' type varName *(',' varName) ';'
     def compile_class_var_dec(self):
         self.output.write('  <classVarDec>\n')
         self.indents += 1
@@ -88,20 +88,25 @@ class CompilationEngine:
         # 'static'/'field'
         self.check_token(False, ['static', 'field'])
 
-        # type
+        # type, which does not end advanced
         self.compile_type(True)
 
         # varName
         self.compile_identifier(True)
 
         self.advance()
-        # *(,
+        # *( and checks if the token is a comma
         while (self.tokenizer.current_token == ','):
             self.check_token(False, ',')
 
-            # varName)
+            # varName
             self.compile_identifier(True)
+
+            # advance so that we're ready to check if the current token is a comma again
             self.advance()
+
+        # ';'
+        self.check_token(False, ';')
 
         self.indents -= 1
         self.output.write('  </classVarDec>\n')
