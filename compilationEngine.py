@@ -72,7 +72,7 @@ class CompilationEngine:
 
         # subroutineVarDec*
         while self.tokenizer.current_token in ['constructor', 'function', 'method']:
-            # self.compile_subroutine_dec()
+            self.compile_subroutine_dec()
             self.advance()
 
         # '}'
@@ -96,7 +96,7 @@ class CompilationEngine:
 
         self.advance()
         # *( and checks if the token is a comma
-        while (self.tokenizer.current_token == ','):
+        while self.tokenizer.current_token == ',':
             self.check_token(False, ',')
 
             # varName
@@ -122,7 +122,7 @@ class CompilationEngine:
             # because all test cases use two spaces for indentations too.
             self.output.write('  ')
 
-        self.output.write('<classVarDec>\n')
+        self.output.write('<type>\n')
         self.indents += 1
 
         # advance if we want to advance
@@ -135,13 +135,53 @@ class CompilationEngine:
         else:  # and otherwise it's className, an identifier.
             self.compile_identifier(False)
 
+        for i in range(0, self.indents):
+            # two spaces as a substitute for a tab. useful for testing purposes
+            # because all test cases use two spaces for indentations too.
+            self.output.write('  ')
+
         self.indents -= 1
-        self.output.write('</classVarDec>\n')
+        self.output.write('</type>\n')
 
     # grammar: constructor/function/method void/type subroutineName
     # '(' parameterList ')' subroutineBody
     def compile_subroutine_dec(self):
-        pass
+        self.output.write('  <subroutineDec>\n')
+        self.indents += 1
+
+        # constructor/function/method. note that because we just checked that it
+        # was a constructor, functon, or method, we don't need to advance.
+        self.check_token(False, ['constructor', 'function', 'method'])
+
+        # 'void' or a type.
+        self.tokenizer.advance()
+        if self.tokenizer.current_token == 'void':
+            self.check_token(False, ['void'])
+        else:
+            # this is an 'or' case where we need to check if it's 'void' or a type.
+            # because of this, we've already advanced so we shouldn't advance.
+            # if we did advance, it would still pass the tests if the code worked
+            # because it would have an identifier right after.
+            self.compile_type(False)
+
+        # subroutineName, which is the equivalent of an identifier. we advance
+        self.compile_identifier(True)
+
+        # '(', the symbol
+        self.check_token(True, ['('])
+
+        # parameterList, a function. based on the formula, it ends advanced to
+        # the next token
+        self.compile_parameter_list()
+
+        # read the last comment to show description of why we don't advance for our ')'
+        self.check_token(False, [')'])
+
+        # subroutineBody, the function
+        self.compile_subroutine_body()
+
+        self.indents -= 1
+        self.output.write('  <subroutineDec>\n')
 
 
 
