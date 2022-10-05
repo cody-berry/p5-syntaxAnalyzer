@@ -159,7 +159,7 @@ class CompilationEngine:
             self.check_token(False, ['void'])
         else:
             # this is an 'or' case where we need to check if it's 'void' or a type.
-            # because of this, we've already advanced so we shouldn't advance.
+            # because of this, we've already advanced, so we shouldn't advance.
             # if we did advance, it would still pass the tests if the code worked
             # because it would have an identifier right after.
             self.compile_type(False)
@@ -183,6 +183,36 @@ class CompilationEngine:
         self.indents -= 1
         self.output.write('  <subroutineDec>\n')
 
+    # grammar: ?(type varname *(',' type varName))
+    def compile_parameter_list(self):
+        self.output.write('    <parameterList>\n')
+        self.indents += 1
+
+        # ?(type
+        self.advance()
+        if self.tokenizer.token_type() in [TokenType.KEYWORD, TokenType.IDENTIFIER]:
+            self.compile_type(False)
+
+            # varName
+            self.compile_identifier(True)
+
+            # *(','
+            self.tokenizer.advance()
+            while self.tokenizer.current_token == ',':
+                self.check_token(False, [','])
+
+                # type
+                self.compile_type(True)
+
+                # varName
+                self.compile_identifier(True)
+
+                # prepare for the next iteration of this
+                self.tokenizer.advance()
+
+
+        self.indents -= 1
+        self.output.write('    <parameterList>\n')
 
 
 
