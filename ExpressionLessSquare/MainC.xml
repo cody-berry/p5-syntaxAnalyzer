@@ -6,7 +6,7 @@
     <keyword> static </keyword>
     <type>
       <keyword> boolean </keyword>
-      </type>
+    </type>
     <identifier> test </identifier>
     <symbol> ; </symbol>
   </classVarDec>
@@ -18,3 +18,6 @@
     <parameterList>
     <parameterList>
     <symbol> ) </symbol>
+    <subroutineBody>
+    <subroutineBody>
+  <subroutineDec>

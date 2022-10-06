@@ -135,12 +135,12 @@ class CompilationEngine:
         else:  # and otherwise it's className, an identifier.
             self.compile_identifier(False)
 
+        self.indents -= 1
+
         for i in range(0, self.indents):
             # two spaces as a substitute for a tab. useful for testing purposes
             # because all test cases use two spaces for indentations too.
             self.output.write('  ')
-
-        self.indents -= 1
         self.output.write('</type>\n')
 
     # grammar: constructor/function/method void/type subroutineName
@@ -210,9 +210,29 @@ class CompilationEngine:
                 # prepare for the next iteration of this
                 self.tokenizer.advance()
 
-
         self.indents -= 1
         self.output.write('    <parameterList>\n')
 
+    # grammar: '{' varDec* statements '}'
+    def compile_subroutine_body(self):
+        self.output.write('    <subroutineBody>\n')
+        self.indents += 1
 
+        # '{'
+        self.check_token(True, ['{'])
+
+        # varDec*
+        self.tokenizer.advance()
+        while self.tokenizer.current_token == 'var':
+            self.compile_var_dec()
+            self.tokenizer.advance()
+
+        # statements
+        self.compile_statements()
+
+        # '}'
+        self.check_token(False, ['}'])
+
+        self.indents -= 1
+        self.output.write('    <subroutineBody>\n')
 

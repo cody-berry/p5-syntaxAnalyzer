@@ -6,7 +6,7 @@
     <keyword> field </keyword>
     <type>
       <keyword> int </keyword>
-      </type>
+    </type>
     <identifier> x </identifier>
     <symbol> , </symbol>
     <identifier> y </identifier>
@@ -16,7 +16,7 @@
     <keyword> field </keyword>
     <type>
       <keyword> int </keyword>
-      </type>
+    </type>
     <identifier> size </identifier>
     <symbol> ; </symbol>
   </classVarDec>
@@ -24,23 +24,26 @@
     <keyword> constructor </keyword>
     <type>
       <identifier> Square </identifier>
-      </type>
+    </type>
     <identifier> new </identifier>
     <symbol> ( </symbol>
     <parameterList>
       <type>
         <keyword> int </keyword>
-        </type>
+      </type>
       <identifier> Ax </identifier>
       <symbol> , </symbol>
       <type>
         <keyword> int </keyword>
-        </type>
+      </type>
       <identifier> Ay </identifier>
       <symbol> , </symbol>
       <type>
         <keyword> int </keyword>
-        </type>
+      </type>
       <identifier> Asize </identifier>
     <parameterList>
     <symbol> ) </symbol>
+    <subroutineBody>
+    <subroutineBody>
+  <subroutineDec>
