@@ -236,3 +236,14 @@ class CompilationEngine:
         self.indents -= 1
         self.output.write('    <subroutineBody>\n')
 
+    # grammar: 'var' type varName *(',' varName) ';'. the only time this is called
+    # we
+    def compile_var_dec(self):
+        self.output.write('      <varDec>\n')
+        self.indents += 1
+
+
+
+        self.output.write('      <varDec>\n')
+        self.indents += 1
+
