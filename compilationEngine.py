@@ -85,6 +85,7 @@ class CompilationEngine:
 
     # grammar: 'static'/'field' type varName *(',' varName) ';'
     def compile_class_var_dec(self):
+        # standard opening. we will use it for the beginning of all functions after this
         self.output.write('  <classVarDec>\n')
         self.indents += 1
 
@@ -111,6 +112,7 @@ class CompilationEngine:
         # ';'
         self.check_token(False, ';')
 
+        # standard ending. we will use something like this for the ending of all functions after this one.
         self.indents -= 1
         self.output.write('  </classVarDec>\n')
 
@@ -297,16 +299,16 @@ class CompilationEngine:
                 self.compile_do()
                 self.advance()
                 return True
+            case 'return':  # returnStatement
+                self.compile_return()
+                self.advance()
+                return True
             case 'while':  # whileStatement
                 self.compile_while()
                 self.advance()
                 return True
             case 'if':  # ifStatement
                 self.compile_if()
-                return True
-            case 'return':  # returnStatement
-                self.compile_return()
-                self.advance()
                 return True
         return False
 
@@ -379,7 +381,7 @@ class CompilationEngine:
         # '('. we don't advance because of the same reason we don't advance for the equal sign in compileLet().
         self.check_token(False, ['('])
 
-        # expressionList. Since this comes out already advanced to the next token, we don't advance on the next
+        # expressionList. Since this comes out already advanced to the next token, we don't advance on the next.
         self.compile_expression_list()
 
         # read the last comment to see why we don't advance on ')'
@@ -391,8 +393,63 @@ class CompilationEngine:
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
-        self.output.write('<doStatement>\n')
+        self.output.write('</doStatement>\n')
 
+    # grammar: ?(expression *(',' expression))
+    def compile_expression_list(self):
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<expressionList>\n')
+        self.indents += 1
+
+        # ?(expression
+        self.advance()
+        if ((self.tokenizer.token_type() in [TokenType.IDENTIFIER, TokenType.STRING_CONST])
+                or (self.tokenizer.current_token in ['true', 'false', 'null', 'this', '-', '~'])):
+            self.compile_expression(False)
+
+            # *(','
+            self.tokenizer.advance()
+            while self.tokenizer.current_token == ',':
+                self.check_token(False, [','])
+
+                # expression
+                self.compile_expression(True)
+
+                self.advance()
+
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('</expressionList>\n')
+
+    # grammar: term
+    def compile_expression(self, advance):
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<expression>\n')
+        self.indents += 1
+
+        self.compile_term(advance)
+
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('</expression>\n')
+
+    # grammar: identifier
+    def compile_term(self, advance):
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<term>\n')
+        self.indents += 1
+
+        self.compile_identifier(advance)
+
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('</term>\n')
 
 
 
