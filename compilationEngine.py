@@ -253,13 +253,33 @@ class CompilationEngine:
 
         # grammar: repeat ',' varName
         self.advance()
-        while (self.tokenizer.current_token == ','):
+        while self.tokenizer.current_token == ',':
             self.check_token(False, [','])
             self.compile_identifier(True)
             self.advance()
 
         self.check_token(False, [';'])
 
+        self.indents -= 1
         self.output.write('      <varDec>\n')
+
+    # grammar: statement*
+    def compile_statements(self):
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<statements>')
         self.indents += 1
+
+        # not only does compile_statement() write down everything needed for a statement,
+        # but it returns true if there is a statement and false if there isn't. it also takes care of advancing
+        # by itself because of the formula of the if statement, ending right after the optional else statement
+        # meaning that all other statements have advanced after.
+        while self.compile_statement():
+            pass
+
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<statements>')
+
 
