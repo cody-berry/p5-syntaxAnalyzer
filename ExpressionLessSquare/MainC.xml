@@ -29,4 +29,7 @@
         <symbol> ; </symbol>
       <varDec>
       <statements>
-      </statements>
+        <letStatement>
+          <keyword> let </keyword>
+          <identifier> game </identifier>
+          <symbol> = </symbol>

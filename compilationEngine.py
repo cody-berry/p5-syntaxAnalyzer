@@ -15,8 +15,8 @@ class CompilationEngine:
             self.tokenizer.advance()
             print(self.tokenizer.current_token + '|')
 
-    # advances a token and checks if it is the correct one,
-    # if given a list sees if it is in the list of tokens, literally 'tokens'
+    # advances a token if the argument 'advance' is true and checks if it is
+    # in the list of tokens, literally 'tokens'.
     def check_token(self, advance, tokens):
         if advance:
             self.advance()
@@ -26,9 +26,12 @@ class CompilationEngine:
             print(token)
             if self.tokenizer.current_token == token:
                 for i in range(0, self.indents):
-                    self.output.write('  ')
+                    self.output.write('  ')  # 2 spaces is an indentation, just like in all the xml test files
 
                 self.output.write(
+                    # token_type() gives us the enumeration. '.name' gives us
+                    # the name of the enumeration. '.name.lower()' gives us the
+                    # type of the token in lowercase letters.
                     '<' + self.tokenizer.token_type().name.lower() + '> ' + token +
                     ' </' + self.tokenizer.token_type().name.lower() + '>\n'
                 )
@@ -285,7 +288,7 @@ class CompilationEngine:
 
     # grammar: letStatement | doStatement | whileStatement | ifStatement | returnStatement
     def compile_statement(self):
-        match self.tokenizer.token_type():
+        match self.tokenizer.current_token:
             case 'let':  # letStatement
                 self.compile_let()
                 self.advance()
@@ -305,8 +308,92 @@ class CompilationEngine:
                 self.compile_return()
                 self.advance()
                 return True
-            case other:
-                return False
+        return False
+
+    # grammar: 'let' varName ?('[' expression ']') '=' expression ';'
+    def compile_let(self):
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<letStatement>\n')
+        self.indents += 1
+
+        # 'let', which defines the name of this function
+        self.check_token(False, ['let'])
+
+        # varName = identifier
+        self.compile_identifier(True)
+
+        # ?('['
+        self.advance()
+        if self.tokenizer.current_token == '[':
+            self.check_token(False, ['['])
+
+            # expression
+            self.compile_expression(True)
+
+            # ']'
+            self.check_token(True, [']'])
+
+            self.advance()
+
+        # '=' note that after the question mark, both ways we've advanced.
+        # the first is that you didn't find the bracket, meaning that the
+        # token must be an equals sign. the second is that you got out of the brackets
+        # for list accessing, and I advanced right after so that neither way you would advance.
+        self.check_token(False, ['='])
+
+        # expression
+        self.compile_expression(True)
+
+        # ';'
+        self.check_token(True, [';'])
+
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<letStatement>\n')
+
+    # grammar: 'do' identifier ?('.' identifier) '(' expressionList ')'.
+    def compile_do(self):
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<doStatement>\n')
+        self.indents += 1
+
+        # 'do'
+        self.check_token(False, ['do'])
+
+        # identifier
+        self.compile_identifier(True)
+
+        # ?('.'
+        self.advance()
+        if self.tokenizer.current_token == '.':
+            self.check_token(False, ['.'])
+
+            # identifier
+            self.compile_identifier(True)
+
+            self.tokenizer.advance()
+
+        # '('. we don't advance because of the same reason we don't advance for the equal sign in compileLet().
+        self.check_token(False, ['('])
+
+        # expressionList. Since this comes out already advanced to the next token, we don't advance on the next
+        self.compile_expression_list()
+
+        # read the last comment to see why we don't advance on ')'
+        self.check_token(False, [')'])
+
+        # ';'
+        self.check_token(True, [';'])
+
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<doStatement>\n')
+
+
 
 
 

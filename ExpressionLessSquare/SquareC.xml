@@ -5,7 +5,7 @@
   <classVarDec>
     <keyword> field </keyword>
     <type>
-      <keyword> int </keyword>
+      <keyword> nt </keyword>
     </type>
     <identifier> x </identifier>
     <symbol> , </symbol>
