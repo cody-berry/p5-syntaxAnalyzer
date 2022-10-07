@@ -1,6 +1,6 @@
 from jackTokenizer import *
 from compilationEngine import *
-file = 'ExpressionLessSquare/Main.jack'
+file = 'ExpressionLessSquare/Square.jack'
 
 # don't even need this anymore, this is just for testing purposes
 #

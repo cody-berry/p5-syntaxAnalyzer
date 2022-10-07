@@ -19,5 +19,12 @@
     <parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
-    <subroutineBody>
-  <subroutineDec>
+      <symbol> { </symbol>
+      <varDec>
+        <keyword> var </keyword>
+        <type>
+          <identifier> SquareGame </identifier>
+        </type>
+        <identifier> game </identifier>
+        <symbol> ; </symbol>
+      <varDec>

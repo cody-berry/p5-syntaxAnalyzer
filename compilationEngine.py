@@ -237,12 +237,28 @@ class CompilationEngine:
         self.output.write('    <subroutineBody>\n')
 
     # grammar: 'var' type varName *(',' varName) ';'. the only time this is called
-    # we
+    # we have already started advance()
     def compile_var_dec(self):
         self.output.write('      <varDec>\n')
         self.indents += 1
 
+        # 'var'
+        self.check_token(False, ['var'])
 
+        # type
+        self.compile_type(True)
+
+        # varName
+        self.compile_identifier(True)
+
+        # grammar: repeat ',' varName
+        self.advance()
+        while (self.tokenizer.current_token == ','):
+            self.check_token(False, [','])
+            self.compile_identifier(True)
+            self.advance()
+
+        self.check_token(False, [';'])
 
         self.output.write('      <varDec>\n')
         self.indents += 1
