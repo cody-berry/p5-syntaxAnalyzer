@@ -231,7 +231,7 @@ class CompilationEngine:
         self.compile_statements()
 
         # '}'
-        self.check_token(False, ['}'])
+        self.check_token(True, ['}'])
 
         self.indents -= 1
         self.output.write('    <subroutineBody>\n')
@@ -246,7 +246,7 @@ class CompilationEngine:
         self.check_token(False, ['var'])
 
         # type
-        self.compile_type(True)
+        self.compile_type(True)  # do advance
 
         # varName
         self.compile_identifier(True)
@@ -258,6 +258,7 @@ class CompilationEngine:
             self.compile_identifier(True)
             self.advance()
 
+        # repeat ';'
         self.check_token(False, [';'])
 
         self.indents -= 1
@@ -267,7 +268,7 @@ class CompilationEngine:
     def compile_statements(self):
         for i in range(0, self.indents):
             self.output.write('  ')
-        self.output.write('<statements>')
+        self.output.write('<statements>\n')
         self.indents += 1
 
         # not only does compile_statement() write down everything needed for a statement,
@@ -280,6 +281,32 @@ class CompilationEngine:
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
-        self.output.write('<statements>')
+        self.output.write('</statements>\n')
+
+    # grammar: letStatement | doStatement | whileStatement | ifStatement | returnStatement
+    def compile_statement(self):
+        match self.tokenizer.token_type():
+            case 'let':  # letStatement
+                self.compile_let()
+                self.advance()
+                return True
+            case 'do':   # doStatement
+                self.compile_do()
+                self.advance()
+                return True
+            case 'while':  # whileStatement
+                self.compile_while()
+                self.advance()
+                return True
+            case 'if':  # ifStatement
+                self.compile_if()
+                return True
+            case 'return':  # returnStatement
+                self.compile_return()
+                self.advance()
+                return True
+            case other:
+                return False
+
 
 
