@@ -26,7 +26,8 @@ class CompilationEngine:
             print(token)
             if self.tokenizer.current_token == token:
                 for i in range(0, self.indents):
-                    self.output.write('  ')  # 2 spaces is an indentation, just like in all the xml test files
+                    self.output.write(
+                        '  ')  # 2 spaces is an indentation, just like in all the xml test files
 
                 self.output.write(
                     # token_type() gives us the enumeration. '.name' gives us
@@ -74,7 +75,8 @@ class CompilationEngine:
             self.advance()
 
         # subroutineVarDec*
-        while self.tokenizer.current_token in ['constructor', 'function', 'method']:
+        while self.tokenizer.current_token in ['constructor', 'function',
+                                               'method']:
             self.compile_subroutine_dec()
             self.advance()
 
@@ -179,7 +181,7 @@ class CompilationEngine:
         # the next token
         self.compile_parameter_list()
 
-        # read the last comment to show description of why we don't advance for our ')'
+        # read the last comment to show description of why we don't advance for our right paren
         self.check_token(False, [')'])
 
         # subroutineBody, the function
@@ -195,7 +197,8 @@ class CompilationEngine:
 
         # ?(type
         self.advance()
-        if self.tokenizer.token_type() in [TokenType.KEYWORD, TokenType.IDENTIFIER]:
+        if self.tokenizer.token_type() in [TokenType.KEYWORD,
+                                           TokenType.IDENTIFIER]:
             self.compile_type(False)
 
             # varName
@@ -236,7 +239,7 @@ class CompilationEngine:
         self.compile_statements()
 
         # '}'
-        self.check_token(True, ['}'])
+        self.check_token(False, ['}'])
 
         self.indents -= 1
         self.output.write('    <subroutineBody>\n')
@@ -290,12 +293,13 @@ class CompilationEngine:
 
     # grammar: letStatement | doStatement | whileStatement | ifStatement | returnStatement
     def compile_statement(self):
+        print('token ' + self.tokenizer.current_token + '|')
         match self.tokenizer.current_token:
             case 'let':  # letStatement
                 self.compile_let()
                 self.advance()
                 return True
-            case 'do':   # doStatement
+            case 'do':  # doStatement
                 self.compile_do()
                 self.advance()
                 return True
@@ -353,7 +357,7 @@ class CompilationEngine:
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
-        self.output.write('<letStatement>\n')
+        self.output.write('</letStatement>\n')
 
     # grammar: 'do' identifier ?('.' identifier) '(' expressionList ')'.
     def compile_do(self):
@@ -378,13 +382,13 @@ class CompilationEngine:
 
             self.tokenizer.advance()
 
-        # '('. we don't advance because of the same reason we don't advance for the equal sign in compileLet().
+        # left paren. we don't advance because of the same reason we don't advance for the equal sign in compileLet().
         self.check_token(False, ['('])
 
         # expressionList. Since this comes out already advanced to the next token, we don't advance on the next.
         self.compile_expression_list()
 
-        # read the last comment to see why we don't advance on ')'
+        # read the last comment to see why we don't advance on right paren
         self.check_token(False, [')'])
 
         # ';'
@@ -397,6 +401,7 @@ class CompilationEngine:
 
     # grammar: ?(expression *(',' expression))
     def compile_expression_list(self):
+        # standard opening
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('<expressionList>\n')
@@ -404,8 +409,10 @@ class CompilationEngine:
 
         # ?(expression
         self.advance()
-        if ((self.tokenizer.token_type() in [TokenType.IDENTIFIER, TokenType.STRING_CONST])
-                or (self.tokenizer.current_token in ['true', 'false', 'null', 'this', '-', '~'])):
+        if ((self.tokenizer.token_type() in [TokenType.IDENTIFIER,
+                                             TokenType.STRING_CONST])
+                or (self.tokenizer.current_token in ['true', 'false', 'null',
+                                                     'this', '-', '~'])):
             self.compile_expression(False)
 
             # *(','
@@ -419,38 +426,77 @@ class CompilationEngine:
                 self.advance()
 
         self.indents -= 1
+        # standard ending
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('</expressionList>\n')
 
-    # grammar: term
+    # simple grammar: term
     def compile_expression(self, advance):
+        # standard opening
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('<expression>\n')
         self.indents += 1
 
+        # term
         self.compile_term(advance)
 
+        # standard ending
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('</expression>\n')
 
-    # grammar: identifier
+    # simple grammar: identifier | 'this'
     def compile_term(self, advance):
+        # standard opening
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('<term>\n')
         self.indents += 1
 
-        self.compile_identifier(advance)
+        if advance:
+            self.advance()
+        match self.tokenizer.token_type():
+            case TokenType.IDENTIFIER:
+                # identifier
+                self.compile_identifier(False)
+            case TokenType.KEYWORD:
+                # 'this'
+                self.check_token(False, ['this'])
 
+        # standard ending
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('</term>\n')
 
+    # grammar: 'return' expression? ';'
+    def compile_return(self):
+        # standard opening
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<returnStatement>\n')
+        self.indents += 1
 
+        # 'return'
+        self.check_token(False, ['return'])
 
+        # expression?
+        self.advance()
+        if ((self.tokenizer.token_type() in [TokenType.IDENTIFIER,
+                                             TokenType.STRING_CONST])
+                or (self.tokenizer.current_token in ['true', 'false', 'null',
+                                                     'this', '-', '~'])):
+            self.compile_identifier(False)
+            self.advance()
 
+        # ';'
+        self.check_token(False, [';'])
+
+        # standard ending
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('</returnStatement>\n')
