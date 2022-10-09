@@ -500,3 +500,52 @@ class CompilationEngine:
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('</returnStatement>\n')
+
+    # 'if' '(' expression ')' '{' statements '}' ?('else' '{' statements '}')
+    def compile_if(self):
+        # standard opening
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<ifStatement>\n')
+        self.indents += 1
+
+        # 'if'
+        self.check_token(False, ['if'])
+
+        # '('
+        self.check_token(True, ['('])
+
+        # expression
+        self.compile_expression(True)
+
+        # ')'
+        self.check_token(True, [')'])
+
+        # '{'
+        self.check_token(True, '{')
+
+        # statements
+        self.advance()
+        self.compile_statements()
+
+        # ?('else'
+        if self.tokenizer.current_token == 'else':
+            self.check_token(False, ['else'])
+
+            # '{'
+            self.check_token(True, ['{'])
+
+            # statements
+            self.advance()
+            self.compile_statements()
+
+            # '}'
+            self.check_token(False, ['}'])
+
+
+
+        # standard ending
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('</ifStatement>\n')
