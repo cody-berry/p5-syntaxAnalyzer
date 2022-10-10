@@ -555,5 +555,39 @@ class CompilationEngine:
             self.output.write('  ')
         self.output.write('</ifStatement>\n')
 
+    # grammar: 'while' '(' expression ')' '{' statements '}'
     def compile_while(self):
-        pass
+        # standard opening
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('<ifStatement>\n')
+        self.indents += 1
+
+        # 'while'
+        self.check_token(False, ['while'])
+
+        # '('
+        self.check_token(True, ['('])
+
+        # expression
+        self.compile_expression(True)
+
+        # ')'
+        self.check_token(True, [')'])
+
+        # '{'
+        self.check_token(True, ['{'])
+
+        # statements
+        self.advance()
+        self.compile_statements()
+
+        # '}'
+        self.check_token(True, ['{'])
+
+        # standard ending
+        self.indents -= 1
+        for i in range(0, self.indents):
+            self.output.write('  ')
+        self.output.write('</ifStatement>\n')
+
