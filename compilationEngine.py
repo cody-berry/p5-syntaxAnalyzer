@@ -128,14 +128,6 @@ class CompilationEngine:
     # just did an advance() or you just finished an asterisk loop or question
     # if-else statement.
     def compile_type(self, advance=True):
-        for i in range(0, self.indents):
-            # two spaces as a substitute for a tab. useful for testing purposes
-            # because all test cases use two spaces for indentations too.
-            self.output.write('  ')
-
-        self.output.write('<type>\n')
-        self.indents += 1
-
         # advance if we want to advance
         if advance:
             self.advance()
@@ -145,14 +137,6 @@ class CompilationEngine:
             self.check_token(False, ['int', 'boolean', 'char'])
         else:  # and otherwise it's className, an identifier.
             self.compile_identifier(False)
-
-        self.indents -= 1
-
-        for i in range(0, self.indents):
-            # two spaces as a substitute for a tab. useful for testing purposes
-            # because all test cases use two spaces for indentations too.
-            self.output.write('  ')
-        self.output.write('</type>\n')
 
     # grammar: constructor/function/method void/type subroutineName
     # '(' parameterList ')' subroutineBody
@@ -493,7 +477,7 @@ class CompilationEngine:
                                              TokenType.STRING_CONST])
                 or (self.tokenizer.current_token in ['true', 'false', 'null',
                                                      'this', '-', '~'])):
-            self.compile_identifier(False)
+            self.compile_expression(False)
             self.advance()
 
         # ';'
@@ -532,6 +516,9 @@ class CompilationEngine:
         self.advance()
         self.compile_statements()
 
+        # '}'
+        self.check_token(False, ['}'])
+
         # ?('else'
         self.advance()
         if self.tokenizer.current_token == 'else':
@@ -560,7 +547,7 @@ class CompilationEngine:
         # standard opening
         for i in range(0, self.indents):
             self.output.write('  ')
-        self.output.write('<ifStatement>\n')
+        self.output.write('<whileStatement>\n')
         self.indents += 1
 
         # 'while'
@@ -583,11 +570,11 @@ class CompilationEngine:
         self.compile_statements()
 
         # '}'
-        self.check_token(True, ['{'])
+        self.check_token(False, ['}'])
 
         # standard ending
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
-        self.output.write('</ifStatement>\n')
+        self.output.write('</whileStatement>\n')
 

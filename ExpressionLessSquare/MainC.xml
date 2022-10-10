@@ -4,9 +4,7 @@
   <symbol> { </symbol>
   <classVarDec>
     <keyword> static </keyword>
-    <type>
-      <keyword> boolean </keyword>
-    </type>
+    <keyword> boolean </keyword>
     <identifier> test </identifier>
     <symbol> ; </symbol>
   </classVarDec>
@@ -22,9 +20,7 @@
       <symbol> { </symbol>
       <varDec>
         <keyword> var </keyword>
-        <type>
-          <identifier> SquareGame </identifier>
-        </type>
+        <identifier> SquareGame </identifier>
         <identifier> game </identifier>
         <symbol> ; </symbol>
       </varDec>
@@ -82,9 +78,7 @@
       <symbol> { </symbol>
       <varDec>
         <keyword> var </keyword>
-        <type>
-          <keyword> boolean </keyword>
-        </type>
+        <keyword> boolean </keyword>
         <identifier> b </identifier>
         <symbol> ; </symbol>
       </varDec>
