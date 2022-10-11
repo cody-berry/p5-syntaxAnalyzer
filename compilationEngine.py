@@ -10,7 +10,8 @@ class CompilationEngine:
         try:
             self.compile_class()
         except ValueError:
-            self.output.write('ERRORRROiejdifoj sdiof jasioep ifoawup3iro5234 u90i ' + self.tokenizer.current_token)
+            self.output.write(
+                'ERRORRROiejdifoj sdiof jasioep ifoawup3iro5234 u90i         token ' + self.tokenizer.current_token)
 
     # advances
     def advance(self):
@@ -326,7 +327,7 @@ class CompilationEngine:
             self.compile_expression(True)
 
             # ']'
-            self.check_token(True, [']'])
+            self.check_token(False, [']'])
 
             self.advance()
 
@@ -340,7 +341,7 @@ class CompilationEngine:
         self.compile_expression(True)
 
         # ';'
-        self.check_token(True, [';'])
+        self.check_token(False, [';'])
 
         self.indents -= 1
         for i in range(0, self.indents):
@@ -398,20 +399,18 @@ class CompilationEngine:
         # ?(expression
         self.advance()
         if ((self.tokenizer.token_type() in [TokenType.IDENTIFIER,
-                                             TokenType.STRING_CONST])
+                                             TokenType.STRING_CONST,
+                                             TokenType.INT_CONST])
                 or (self.tokenizer.current_token in ['true', 'false', 'null',
-                                                     'this', '-', '~'])):
+                                                     'this', '(', '-', '~'])):
             self.compile_expression(False)
 
             # *(','
-            self.tokenizer.advance()
             while self.tokenizer.current_token == ',':
                 self.check_token(False, [','])
 
                 # expression
                 self.compile_expression(True)
-
-                self.advance()
 
         self.indents -= 1
         # standard ending
@@ -419,7 +418,7 @@ class CompilationEngine:
             self.output.write('  ')
         self.output.write('</expressionList>\n')
 
-    # simple grammar: term
+    # grammar: term *(op term)
     def compile_expression(self, advance):
         # standard opening
         for i in range(0, self.indents):
@@ -430,13 +429,22 @@ class CompilationEngine:
         # term
         self.compile_term(advance)
 
+        # *(op
+        if self.tokenizer.current_token in ['+', '-', '*', '/', '&amp;', '|', '&lt;',
+                                            '&gt;', '=']:
+            self.check_token(False,
+                             ['+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '='])
+
+            # term
+            self.compile_term(True)
+
         # standard ending
         self.indents -= 1
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('</expression>\n')
 
-    # simple grammar: identifier | 'this'
+    # grammar: integerConstant | stringConstant | 'true' | 'false' | 'null' | 'this' | identifier | identifier ('[' expression ']' | ?('.' identifier) '(' expressionList ')') | '(' expression ')' | '-' term | '~' term
     def compile_term(self, advance):
         # standard opening
         for i in range(0, self.indents):
@@ -450,9 +458,66 @@ class CompilationEngine:
             case TokenType.IDENTIFIER:
                 # identifier
                 self.compile_identifier(False)
+                self.advance()
+
+                # and then we search for some extensions to the identifier
+                match self.tokenizer.current_token:
+                    # '[' expression ']'
+                    case '[':
+                        self.check_token(False, ['['])
+                        self.compile_expression(True)
+                        self.check_token(False, [']'])
+                        self.advance()
+                    # '.' identifier '(' expressionList ')'
+                    case '.':
+                        self.check_token(False, ['.'])
+                        self.compile_identifier(True)
+                        self.check_token(True, ['('])
+                        self.compile_expression_list()
+                        self.check_token(False, [')'])
+                        self.advance()
+                    # '(' expressionList ')'
+                    case '(':
+                        self.check_token(False, ['('])
+                        self.compile_expression_list()
+                        self.check_token(False, [')'])
+                        self.advance()
+
             case TokenType.KEYWORD:
-                # 'this'
-                self.check_token(False, ['this'])
+                # 'this' | 'null' | 'true' | 'false'
+                self.check_token(False, ['this', 'null', 'true', 'false'])
+                self.advance()
+
+            case TokenType.SYMBOL:
+                match self.tokenizer.current_token:
+                    # '(' expression ')'
+                    case '(':
+                        self.check_token(False, ['('])
+                        self.compile_expression(True)
+                        self.check_token(False, [')'])
+                        self.advance()
+                    # '-' term
+                    case '-':
+                        self.check_token(False, ['-'])
+                        self.compile_term(True)
+                    # '~' term
+                    case '~':
+                        self.check_token(False, ['~'])
+                        self.compile_term(True)
+
+            # others: intConst | stringConst
+            case TokenType.INT_CONST:
+                for i in range(0, self.indents):
+                    self.output.write('  ')
+                self.output.write(
+                    f'<integerConstant> {self.tokenizer.current_token} </integerConstant>\n')
+                self.advance()
+            case TokenType.STRING_CONST:
+                for i in range(0, self.indents):
+                    self.output.write('  ')
+                self.output.write(
+                    f'<stringConstant> {self.tokenizer.string_val()} </stringConstant>\n')
+                self.advance()
 
         # standard ending
         self.indents -= 1
@@ -478,7 +543,6 @@ class CompilationEngine:
                 or (self.tokenizer.current_token in ['true', 'false', 'null',
                                                      'this', '-', '~'])):
             self.compile_expression(False)
-            self.advance()
 
         # ';'
         self.check_token(False, [';'])
@@ -507,7 +571,7 @@ class CompilationEngine:
         self.compile_expression(True)
 
         # ')'
-        self.check_token(True, [')'])
+        self.check_token(False, [')'])
 
         # '{'
         self.check_token(True, ['{'])
@@ -560,7 +624,7 @@ class CompilationEngine:
         self.compile_expression(True)
 
         # ')'
-        self.check_token(True, [')'])
+        self.check_token(False, [')'])
 
         # '{'
         self.check_token(True, ['{'])
@@ -577,4 +641,3 @@ class CompilationEngine:
         for i in range(0, self.indents):
             self.output.write('  ')
         self.output.write('</whileStatement>\n')
-

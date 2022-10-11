@@ -47,12 +47,14 @@ class JackTokenizer:
             except:
                 pass
 
-            line = line[:-1].strip(' ')
+            line = line.strip(' ').strip('\n').strip(' ').strip('\t').strip(' ')
 
             if (len(line) > 0) and (line[0] != '/') and (line[0] != "*"):
                 self.file.append(line)
 
         self.file.append('\n')
+
+        print(self.file)
 
     def hasMoreTokens(self):
         return not ((self.line_number >= len(self.file) - 1) and (
